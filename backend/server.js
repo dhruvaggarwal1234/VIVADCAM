@@ -20,9 +20,23 @@ io.on('connection' ,(socket)=>{
 
     socket.on("hello",(data)=>{
         console.log("Recieved data : ", data)
-        
+
         socket.emit("hello-response" , "hello from server ");
     })
+    
+  socket.on("join-room", ({ roomId, userId, name }) => {
+  socket.join(roomId);
+
+  console.log(`User joined`);
+  console.log("Room:", roomId);
+  console.log("UserId:", userId);
+  console.log("Name:", name);
+
+  socket.to(roomId).emit("user-joined",{
+    userId,
+    name,
+  })
+});
 
 })
 
@@ -31,7 +45,9 @@ io.on('connection' ,(socket)=>{
 
 
 
-app.listen(3000,()=>{
+
+
+server.listen(3000,()=>{
     console.log("Server is working of 3000")
 })
 
