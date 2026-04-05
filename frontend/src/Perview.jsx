@@ -4,7 +4,7 @@ import micOff from "./assets/micoff.png";
 import camOff from "./assets/camoff.png";
 import camOn from "./assets/camon.png";
 import PermissionModel from "./components/PermissionModel";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 
 
@@ -16,12 +16,19 @@ function Preview() {
   const [mic, setMic] = useState(false);
   const [name,setName] = useState('')
   const [perModel , SetPerModel] = useState(false);
+  const [userId] =useState(()=>{
+    return Math.random().toString(36).substring(2,9);
+  })
+
+  const location = useLocation()
+  const username = location.state?.name;
+
+ 
+
 
 
   const navigate = useNavigate()
   const {id} = useParams()
-
-
 
  
   const handleMic = async () => {
@@ -96,6 +103,16 @@ const handleCam = async () => {
     }
   }
 };
+
+
+const handleJoin = () =>{
+  navigate(`/${id}`,{state:{username,userId}}
+    
+  )
+  
+}
+
+ 
 
   return (
     
@@ -198,7 +215,7 @@ const handleCam = async () => {
   <div>
     <button 
     className="w-full py-3 rounded-xl font-semibold bg-[var(--text-primary)] text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95"
-    onClick={() => navigate(`/${id}`)}
+    onClick={handleJoin}
     >
       Join Now
     </button>
