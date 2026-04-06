@@ -1,15 +1,18 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
 export default function HomePage() {
+
+
+
+
   const [id, setId] = useState('')
-  const [name , setName]= useState('')
+  const [username , setUserName]= useState('')
   const navigate = useNavigate()
 
   const handleInstant = () =>{
 
     const value = Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
-    navigate(`/Preview/${value}`,{state:{name}})
+    navigate(`/Preview/${value}`,{state:{username}})
   }
 
   return (
@@ -35,13 +38,13 @@ export default function HomePage() {
             <label className="text-sm opacity-70">Your Name</label>
             <input
               type="text"
-              name='name'
-              value={name}
-              onChange={(e)=>setName(e.target.value)}
+              name='username'
+              value={username}
+              onChange={(e)=>setUserName(e.target.value)}
               placeholder="Enter your name"
               className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 outline-none focus:ring-2 focus:ring-[var(--text-primary)] transition"
               />
-              {!name && <p style={{ color: "red" }}>Name is required</p>}
+              {!username && <p style={{ color: "red" }}>Name is required</p>}
           </div>
 
           <div className="flex flex-col gap-1">
@@ -59,9 +62,9 @@ export default function HomePage() {
 
         {/* Button */}
         <button
-          onClick={() => navigate(`/Preview/${id}`,{state:{name}})}
+          onClick={() => navigate(`/Preview/${id}`,{state:{username}})}
           className="mt-2 w-full py-3 rounded-xl font-semibold bg-[var(--text-primary)] text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95 disabled:opacity-50"
-          disabled={!id||!name}
+          disabled={!id||!username}
         >
           Join Now
         </button>
@@ -71,7 +74,7 @@ export default function HomePage() {
         <button
           onClick={handleInstant}
           className="mt-2 w-full py-3 rounded-xl font-semibold bg-[var(--text-primary)] text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95 disabled:opacity-50"
-          disabled={!name}
+          disabled={!username}
         >
          + Create Instant Room
         </button>

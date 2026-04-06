@@ -3,6 +3,6 @@
 import { io } from "socket.io-client";
 
 export const socket = io("http://localhost:3000", {
-  autoConnect: true,   // connect automatically
-  transports: ["websocket"], // faster + stable
+  autoConnect: true,  
+  transports: ["websocket"], 
 });

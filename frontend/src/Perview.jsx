@@ -5,111 +5,118 @@ import camOff from "./assets/camoff.png";
 import camOn from "./assets/camon.png";
 import PermissionModel from "./components/PermissionModel";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useMedia } from "./context/MediaContext";
+
+
 
 
 
 function Preview() {
   const videoRef  =useRef(null)
-  const audioTrackRef = useRef(null);
-  const videoTrackRef = useRef(null);
+  const streamRef = useRef(null)
   const [cam, setCam] = useState(false);
-  const [mic, setMic] = useState(false);
+  const [mic, setMic] = useState(true);
   const [name,setName] = useState('')
   const [perModel , SetPerModel] = useState(false);
   const [userId] =useState(()=>{
     return Math.random().toString(36).substring(2,9);
   })
+  const {setStream}= useMedia()
+
 
   const location = useLocation()
-  const username = location.state?.name;
-
- 
-
-
+  const username = location.state?.username;
 
   const navigate = useNavigate()
   const {id} = useParams()
 
- 
-  const handleMic = async () => {
-   
-    if(mic){
-      setMic(false);
 
-      audioTrackRef.current?.stop();
-      audioTrackRef.current =null;
-    }
-    else{
-      try{const stream = await navigator.mediaDevices.getUserMedia({audio:true})
-      const track =  stream.getAudioTracks()[0];
-      audioTrackRef.current=track;
-      setMic(true)
-      SetPerModel(false)
-      setName('')
+  useEffect(()=>{
 
-      }catch(err){
-        setMic(false)
+  const check = async()=>{if (!streamRef.current) {
+    console.log("check is running")
+  const newStream = await navigator.mediaDevices.getUserMedia({
+    video:  cam,
+    audio: true,
+  });
 
-        if(err.name==='NotAllowedError'){
-          SetPerModel(true)
-          setName('Microphone')
-        } 
-        else{
-          console.log("err from mic" , err.name)
-        }
-      }
-    }
-
-  };
-
-const handleCam = async () => {
-  if (cam) {
-    
-    
-    videoTrackRef.current?.stop();
-    videoTrackRef.current =null;
-    
-
-    if(videoRef.current){
-      videoRef.current.srcObject= null;
-    }
-
-    setCam(false);
-
-  } else {
-    try {
+  if(videoRef.current){
+    videoRef.current.srcObject = newStream
+  } 
+  streamRef.current = newStream;
+  setStream(streamRef.current)
+}}
 
 
-      const newStream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const newTrack = newStream.getVideoTracks()[0];
 
-      SetPerModel(false)
-      setName('')
+check()
+  },[])
 
-      videoTrackRef.current = newTrack;
 
-      if(videoRef.current){
-        videoRef.current.srcObject = newStream;
-      }
+const handleMic = () => {
+  try{
+    const audioTrack = streamRef.current?.getAudioTracks()[0];
+  if (!audioTrack) return;
 
-      setCam(true)
-    } catch (err) {
-      setCam(false);
-      if(err.name==='NotAllowedError'){
-          SetPerModel(true)
-          setName('Camera')
-        } 
-      console.log("Camera restart failed:", err.message);
+  audioTrack.enabled = !audioTrack.enabled;
+  setMic(audioTrack.enabled);
+  setStream(streamRef.current)
+  }catch(err){
+    console.log(err.message);
+
+    if(err.Name === "NotAllowedError"){
+      SetPerModel(true);
+      setName("Camera");
     }
   }
 };
 
 
+const handleCam = async () => {
+  if(!streamRef.current) return
+
+  const videoTrack = streamRef.current.getVideoTracks()[0];
+
+  if(videoTrack){
+    videoTrack.stop();
+    streamRef.current.removeTrack(videoTrack);
+     if (videoRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+    setStream(streamRef.current)
+    setCam(false);
+    return
+  }
+
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({video:true})
+
+    const newVideoTrack = await stream.getVideoTracks()[0]
+    streamRef.current.addTrack(newVideoTrack);
+
+    if(videoRef.current){
+      videoRef.current.srcObject = streamRef.current;
+    }
+
+    setStream(streamRef.current)
+    setCam(true);
+
+  }catch(err){
+    console.log(err.message);
+
+    if(err.Name === "NotAllowedError"){
+      SetPerModel(true);
+      setName("Camera");
+    }
+  }
+
+
+}
+  
+
 const handleJoin = () =>{
   navigate(`/${id}`,{state:{username,userId}}
-    
-  )
-  
+     )
 }
 
  
